@@ -20,18 +20,25 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
+  MenuToggle,
+  Dropdown,
+  DropdownList,
+  DropdownItem,
 } from '@patternfly/react-core';
-import { MoonIcon, SunIcon, BarsIcon } from '@patternfly/react-icons';
+import { MoonIcon, SunIcon, BarsIcon, GlobeIcon } from '@patternfly/react-icons';
 import { useMigrations } from '../../hooks/useMigrations';
+import { useLanguage } from '../../context/LanguageContext';
 import { t } from '../../i18n';
 
 export function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toasts, removeToast } = useMigrations();
+  const { language, setLanguage } = useLanguage();
   const [isDark, setIsDark] = useState(() => {
     try { return localStorage.getItem('theme') === 'dark'; } catch { return false; }
   });
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('pf-v6-theme-dark', isDark);
@@ -47,6 +54,8 @@ export function AppLayout() {
     { label: t('nav.dashboard'), path: '/' },
     { label: t('nav.providers'), path: '/providers' },
     { label: t('nav.plans'), path: '/plans' },
+    { label: t('nav.cluster'), path: '/cluster' },
+    { label: t('nav.about'), path: '/about' },
   ];
 
   const masthead = (
@@ -54,7 +63,7 @@ export function AppLayout() {
       <MastheadToggle>
         <PageToggleButton
           variant="plain"
-          aria-label="Global navigation"
+          aria-label={language === 'he' ? 'ניווט גלובלי' : 'Global navigation'}
           id="nav-toggle"
           isHamburgerButton
         >
@@ -83,16 +92,39 @@ export function AppLayout() {
             />
             <path d="M12 12L3 7M12 12v10M12 12l9-5" stroke="currentColor" strokeWidth="1.5" />
           </svg>
-          <span style={{ fontWeight: 700, fontSize: '1rem' }}>Migration Toolkit</span>
+          <span style={{ fontWeight: 700, fontSize: '1rem' }}>
+            {language === 'he' ? 'ערכת הגירה' : 'Migration Toolkit'}
+          </span>
         </MastheadBrand>
       </MastheadMain>
       <MastheadContent>
         <Toolbar>
           <ToolbarContent>
+            <ToolbarItem>
+              <Dropdown
+                isOpen={langDropdownOpen}
+                onOpenChange={setLangDropdownOpen}
+                toggle={(ref) => (
+                  <MenuToggle ref={ref} onClick={() => setLangDropdownOpen(!langDropdownOpen)}>
+                    <GlobeIcon aria-hidden="true" />
+                    <span style={{ marginLeft: '0.5rem' }}>{language.toUpperCase()}</span>
+                  </MenuToggle>
+                )}
+              >
+                <DropdownList>
+                  <DropdownItem onClick={() => { setLanguage('en'); setLangDropdownOpen(false); }}>
+                    English
+                  </DropdownItem>
+                  <DropdownItem onClick={() => { setLanguage('he'); setLangDropdownOpen(false); }}>
+                    עברית
+                  </DropdownItem>
+                </DropdownList>
+              </Dropdown>
+            </ToolbarItem>
             <ToolbarItem align={{ default: 'alignEnd' }}>
               <Button
                 variant="plain"
-                aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+                aria-label={isDark ? (language === 'he' ? 'עבור לערכת בהירה' : 'Switch to light theme') : (language === 'he' ? 'עבור לערכת אפלה' : 'Switch to dark theme')}
                 onClick={toggleTheme}
                 icon={isDark ? <SunIcon /> : <MoonIcon />}
               />
@@ -106,7 +138,7 @@ export function AppLayout() {
   const sidebar = (
     <PageSidebar>
       <PageSidebarBody>
-        <Nav aria-label="Primary navigation">
+        <Nav aria-label={language === 'he' ? 'ניווט ראשי' : 'Primary navigation'}>
           <NavList>
             {navItems.map((item) => (
               <NavItem
@@ -130,8 +162,23 @@ export function AppLayout() {
 
   return (
     <>
+      <a href="#main-content" style={{
+        position: 'absolute',
+        left: '-9999px',
+        zIndex: 9999,
+      }} onFocus={(e) => {
+        e.currentTarget.style.position = 'static';
+        e.currentTarget.style.left = 'auto';
+      }} onBlur={(e) => {
+        e.currentTarget.style.position = 'absolute';
+        e.currentTarget.style.left = '-9999px';
+      }}>
+        {language === 'he' ? 'דלג לתוכן ראשי' : 'Skip to main content'}
+      </a>
       <Page masthead={masthead} sidebar={sidebar} isManagedSidebar>
-        <Outlet />
+        <main id="main-content">
+          <Outlet />
+        </main>
       </Page>
       <AlertGroup isToast isLiveRegion>
         {toasts.map((toast) => (

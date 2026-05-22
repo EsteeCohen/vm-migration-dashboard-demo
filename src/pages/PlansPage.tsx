@@ -59,7 +59,7 @@ function sortPlans(plans: MigrationPlan[], field: SortField, dir: SortDir): Migr
 
 export function PlansPage() {
   const navigate = useNavigate();
-  const { plans, providers, loading } = useMigrations();
+  const { plans, providers, vms, loading } = useMigrations();
   const [statusFilter, setStatusFilter] = useState<PlanStatus[]>([]);
   const [statusOpen, setStatusOpen] = useState(false);
   const [sortField, setSortField] = useState<SortField>('createdAt');

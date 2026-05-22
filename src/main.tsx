@@ -10,7 +10,10 @@ import { ProvidersPage } from './pages/ProvidersPage';
 import { PlansPage } from './pages/PlansPage';
 import { PlanNewPage } from './pages/PlanNewPage';
 import { PlanDetailPage } from './pages/PlanDetailPage';
+import { ClusterPage } from './pages/ClusterPage';
+import { AboutPage } from './pages/AboutPage';
 import { MigrationProvider } from './context/MigrationContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 const router = createBrowserRouter([
   {
@@ -22,14 +25,18 @@ const router = createBrowserRouter([
       { path: 'plans', element: <PlansPage /> },
       { path: 'plans/new', element: <PlanNewPage /> },
       { path: 'plans/:id', element: <PlanDetailPage /> },
+      { path: 'cluster', element: <ClusterPage /> },
+      { path: 'about', element: <AboutPage /> },
     ],
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <MigrationProvider>
-      <RouterProvider router={router} />
-    </MigrationProvider>
+    <LanguageProvider>
+      <MigrationProvider>
+        <RouterProvider router={router} />
+      </MigrationProvider>
+    </LanguageProvider>
   </React.StrictMode>
 );

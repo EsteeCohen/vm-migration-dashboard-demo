@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import type { Provider, VM, MigrationPlan, MigrationStep } from '../types/migration';
-import { mockProviders, mockVMs, mockPlans } from '../mock/data';
+import { apiClient } from '../api/client';
 
 interface State {
   providers: Provider[];
@@ -76,10 +76,19 @@ export function MigrationProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      dispatch({ type: 'LOAD_SUCCESS', providers: mockProviders, vms: mockVMs, plans: mockPlans });
-    }, 800);
-    return () => clearTimeout(timer);
+    (async () => {
+      try {
+        const [providers, vms, plans] = await Promise.all([
+          apiClient.getProviders(),
+          apiClient.getVMs(),
+          apiClient.getPlans(),
+        ]);
+        dispatch({ type: 'LOAD_SUCCESS', providers, vms, plans });
+      } catch (error) {
+        console.error('Failed to load data:', error);
+        dispatch({ type: 'ADD_TOAST', toast: { id: `toast-${Date.now()}`, variant: 'danger', title: 'Failed to load data' } });
+      }
+    })();
   }, []);
 
   const value: ContextValue = {
