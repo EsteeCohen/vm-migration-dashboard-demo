@@ -1,6 +1,6 @@
 import { JSONFileSync } from 'lowdb/node';
 import { Low } from 'lowdb';
-import type { Provider, VM, MigrationPlan, MigrationStep } from '../src/types/migration.js';
+import type { Provider, VM, MigrationPlan } from '../src/types/migration.js';
 
 interface Database {
   providers: Provider[];

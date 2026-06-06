@@ -39,7 +39,7 @@ export const apiClient = {
     return res.json();
   },
 
-  subscribeToPlanEvents(planId: string, onUpdate: (data: any) => void, onError?: (error: Error) => void): () => void {
+  subscribeToPlanEvents(planId: string, onUpdate: (data: unknown) => void, onError?: (error: Error) => void): () => void {
     const eventSource = new EventSource(`${API}/plans/${planId}/events`);
     eventSource.onmessage = (e) => {
       try {

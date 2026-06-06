@@ -105,6 +105,7 @@ export function MigrationProvider({ children }: { children: React.ReactNode }) {
   return <MigrationContext.Provider value={value}>{children}</MigrationContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useMigrations() {
   const ctx = useContext(MigrationContext);
   if (!ctx) throw new Error('useMigrations must be used within MigrationProvider');

@@ -13,7 +13,6 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   DescriptionListDescription,
-  Label,
 } from '@patternfly/react-core';
 import { CheckCircleIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 

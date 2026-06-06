@@ -128,12 +128,11 @@ export function PlanDetailPage() {
       const updatedSteps: MigrationStep[] = plan.vms.map((vmId, idx) => {
         const offset = idx * 15;
         const progress = Math.min(100, elapsed - offset);
-        let phase: MigrationStep['phase'] = 'precopy';
+        let phase: MigrationStep['phase'];
         if (progress <= 0) phase = 'pending';
         else if (progress < 60) phase = 'precopy';
-        else if (progress < 90) phase = 'cutover';
-        else if (progress >= 100) phase = 'completed';
-        else phase = 'cutover';
+        else if (progress < 100) phase = 'cutover';
+        else phase = 'completed';
         return {
           vmId,
           phase,
