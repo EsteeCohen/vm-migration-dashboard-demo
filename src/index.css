@@ -17,3 +17,233 @@ body,
   flex-direction: column;
   min-height: 100vh;
 }
+
+/* ── Page entry animation ──────────────────────────────────── */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pf-v6-c-page__main-section {
+  animation: pageEnter 0.22s ease-out both;
+}
+
+.pf-v6-c-page__main-section:nth-child(2) { animation-delay: 0.05s; }
+.pf-v6-c-page__main-section:nth-child(3) { animation-delay: 0.10s; }
+.pf-v6-c-page__main-section:nth-child(4) { animation-delay: 0.15s; }
+.pf-v6-c-page__main-section:nth-child(5) { animation-delay: 0.20s; }
+
+/* ── Card hover lift ───────────────────────────────────────── */
+.pf-v6-c-card {
+  transition: box-shadow 0.2s ease, transform 0.18s ease;
+}
+
+.pf-v6-c-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14);
+  transform: translateY(-1px);
+}
+
+/* ── Button transitions ────────────────────────────────────── */
+.pf-v6-c-button {
+  transition: background-color 0.15s ease,
+              color 0.15s ease,
+              border-color 0.15s ease,
+              box-shadow 0.15s ease,
+              transform 0.1s ease !important;
+}
+
+.pf-v6-c-button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* ── Table row hover ───────────────────────────────────────── */
+.pf-v6-c-table tbody .pf-v6-c-table__tr {
+  transition: background-color 0.15s ease;
+}
+
+/* ── Nav item transitions ──────────────────────────────────── */
+.pf-v6-c-nav__link {
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+/* ── Sidebar slide ─────────────────────────────────────────── */
+.pf-v6-c-page__sidebar {
+  transition: transform 0.25s ease, width 0.25s ease;
+}
+
+/* ── Alert slide-in / fade-out ─────────────────────────────── */
+@keyframes alertIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes alertOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(10px); }
+}
+
+.pf-v6-c-alert {
+  animation: alertIn 0.2s ease-out both;
+}
+
+.toast-fading {
+  animation: alertOut 0.5s ease-out forwards !important;
+}
+
+/* ── Progress bar transition ───────────────────────────────── */
+.pf-v6-c-progress__indicator {
+  transition: width 0.6s ease-in-out;
+}
+
+/* ── Badge fade ────────────────────────────────────────────── */
+.pf-v6-c-badge,
+.pf-v6-c-label {
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+/* ── Login page two-column layout ─────────────────────────── */
+.login-layout {
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+}
+
+.login-brand-panel {
+  flex: 0 0 44%;
+  background: linear-gradient(160deg, #0a1628 0%, #0d2347 55%, #112d5e 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3.5rem;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-brand-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 80% 20%, rgba(0, 102, 204, 0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.login-form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  padding: 2.5rem 2rem;
+  overflow-y: auto;
+}
+
+.login-tabs {
+  display: flex;
+  border-bottom: 2px solid #e8e8e8;
+  margin-bottom: 1.75rem;
+  gap: 0;
+}
+
+.login-tab-btn {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #6a6e73;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.login-tab-btn:hover { color: #0066cc; }
+.login-tab-btn.active { color: #0066cc; border-bottom-color: #0066cc; }
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.25rem 0;
+  color: #8a8d90;
+  font-size: 0.82rem;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e8e8e8;
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0.55rem 1rem;
+  background: #ffffff;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #3c4043;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s;
+  font-family: inherit;
+}
+
+.google-btn:hover:not(:disabled) {
+  background: #f8f9fa;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+.google-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.login-quick-access {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e8e8e8;
+}
+
+.login-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.login-feature-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: rgba(255,255,255,0.85);
+}
+
+@media (max-width: 768px) {
+  .login-brand-panel { display: none; }
+  .login-layout { background: #fff; }
+  .login-form-panel { padding: 1.5rem 1.25rem; }
+}
+
+/* ── Dark mode: fix Victory chart SVG text visibility ──────── */
+/* Victory renders plain SVG <text> with inline fill — override it */
+.pf-v6-theme-dark svg text {
+  fill: var(--pf-v6-global--Color--100, #e0e0e0) !important;
+}
+
+/* Axis tick lines */
+.pf-v6-theme-dark svg line {
+  stroke: var(--pf-v6-global--Color--300, #666) !important;
+}

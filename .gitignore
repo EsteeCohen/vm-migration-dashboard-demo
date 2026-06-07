@@ -23,6 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 
+# Database (auto-created at runtime)
+.db/
+
+# Large demo recordings (use docs/demo.gif instead)
+docs/demo.webm
+
 # Playwright
 /test-results/
 /playwright-report/

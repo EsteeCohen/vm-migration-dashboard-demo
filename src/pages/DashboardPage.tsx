@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   PageSection,
@@ -37,6 +37,18 @@ import {
 } from '@patternfly/react-icons';
 import { ChartDonut, ChartArea, ChartAxis, ChartGroup, ChartThemeColor } from '@patternfly/react-charts/victory';
 import { useMigrations } from '../hooks/useMigrations';
+
+function useIsDark() {
+  const [dark, setDark] = useState(() => document.documentElement.classList.contains('pf-v6-theme-dark'));
+  useEffect(() => {
+    const obs = new MutationObserver(() =>
+      setDark(document.documentElement.classList.contains('pf-v6-theme-dark'))
+    );
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
+  return dark;
+}
 import { PlanStatusBadge, ProviderStatusBadge } from '../components/StatusBadge';
 import { t } from '../i18n';
 import type { PlanStatus } from '../types/migration';
@@ -74,18 +86,28 @@ const STATUS_COLORS: Record<PlanStatus, string> = {
 };
 
 const areaData = [
-  { x: 'Mon', y: 12 },
-  { x: 'Tue', y: 28 },
-  { x: 'Wed', y: 19 },
-  { x: 'Thu', y: 45 },
-  { x: 'Fri', y: 33 },
-  { x: 'Sat', y: 8 },
-  { x: 'Sun', y: 51 },
+  { x: 1, y: 12 },
+  { x: 2, y: 28 },
+  { x: 3, y: 19 },
+  { x: 4, y: 45 },
+  { x: 5, y: 33 },
+  { x: 6, y: 8 },
+  { x: 7, y: 51 },
 ];
+const areaDayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export function DashboardPage() {
   const navigate = useNavigate();
   const { plans, providers, loading } = useMigrations();
+  const isDark = useIsDark();
+  const chartTextColor  = isDark ? '#e0e0e0' : '#3c3f42';
+  const chartAxisColor  = isDark ? '#6a6e73' : '#8a8d90';
+  const chartGridColor  = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+  const areaFillColor   = isDark ? '#73bcf7' : '#0066cc';
+  const axisStyle = {
+    tickLabels: { fill: chartTextColor, fontSize: 11 },
+    axis: { stroke: chartAxisColor },
+  };
 
   const counts: Record<PlanStatus, number> = { draft: 0, ready: 0, running: 0, succeeded: 0, failed: 0 };
   plans.forEach((p) => counts[p.status]++);
@@ -131,28 +153,30 @@ export function DashboardPage() {
         <Grid hasGutter>
           <GridItem md={5}>
             <Card isFullHeight>
-              <CardTitle>Plan Status Breakdown</CardTitle>
+              <CardTitle>{t('dashboard.statusBreakdown')}</CardTitle>
               <CardBody>
                 {loading ? (
-                  <Skeleton height="220px" />
+                  <Skeleton height="290px" />
                 ) : plans.length === 0 ? (
                   <EmptyState>
                     <EmptyStateBody>No plans to display.</EmptyStateBody>
                   </EmptyState>
                 ) : (
-                  <div style={{ height: 220 }}>
+                  /* dir=ltr prevents RTL from mirroring the Victory SVG */
+                  <div dir="ltr" style={{ height: 290, overflow: 'hidden' }}>
                     <ChartDonut
                       data={donutData}
                       title={String(plans.length)}
-                      subTitle="total plans"
-                      height={220}
-                      width={400}
+                      subTitle={t('dashboard.totalPlansShort')}
+                      height={290}
+                      width={340}
                       themeColor={ChartThemeColor.multiOrdered}
                       legendData={donutData.map((d) => ({ name: `${d.x}: ${d.y}` }))}
-                      legendOrientation="vertical"
-                      legendPosition="right"
-                      padding={{ bottom: 20, left: 20, right: 140, top: 20 }}
+                      legendOrientation="horizontal"
+                      legendPosition="bottom"
+                      padding={{ bottom: 100, left: 20, right: 20, top: 20 }}
                       ariaTitle="Plan status breakdown donut chart"
+                      style={{ labels: { fill: chartTextColor } }}
                     />
                   </div>
                 )}
@@ -162,19 +186,42 @@ export function DashboardPage() {
 
           <GridItem md={7}>
             <Card isFullHeight>
-              <CardTitle>Migration Activity — Last 7 Days (GB transferred)</CardTitle>
+              <CardTitle>{t('dashboard.activityTitle')}</CardTitle>
               <CardBody>
                 {loading ? (
-                  <Skeleton height="220px" />
+                  <Skeleton height="290px" />
                 ) : (
-                  <div style={{ height: 220 }}>
-                    <ChartGroup height={220} width={520} padding={{ bottom: 40, left: 50, right: 20, top: 10 }}>
-                      <ChartAxis />
-                      <ChartAxis dependentAxis showGrid />
+                  /* dir=ltr prevents RTL from mirroring the Victory SVG */
+                  <div dir="ltr" style={{ height: 290 }}>
+                    <ChartGroup
+                      height={290}
+                      width={520}
+                      padding={{ bottom: 50, left: 55, right: 20, top: 20 }}
+                    >
+                      <ChartAxis
+                        tickValues={[1, 2, 3, 4, 5, 6, 7]}
+                        tickFormat={areaDayLabels}
+                        style={axisStyle}
+                      />
+                      <ChartAxis
+                        dependentAxis
+                        showGrid
+                        style={{
+                          ...axisStyle,
+                          grid: { stroke: chartGridColor },
+                        }}
+                      />
                       <ChartArea
                         data={areaData}
-                        style={{ data: { fill: 'var(--pf-v6-global--info-color--100)', fillOpacity: 0.2, stroke: 'var(--pf-v6-global--info-color--100)' } }}
-                        ariaTitle="Migration activity area chart"
+                        style={{
+                          data: {
+                            fill: areaFillColor,
+                            fillOpacity: 0.25,
+                            stroke: areaFillColor,
+                            strokeWidth: 2,
+                          },
+                        }}
+                        aria-label="Migration activity area chart"
                       />
                     </ChartGroup>
                   </div>

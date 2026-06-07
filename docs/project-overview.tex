@@ -1,0 +1,1258 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[margin=2.4cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{mdframed}
+
+% ── Colors ────────────────────────────────────────────────────────────────────
+\definecolor{rhred}{RGB}{200,25,25}
+\definecolor{pfblue}{RGB}{0,102,204}
+\definecolor{codebg}{RGB}{246,248,250}
+\definecolor{codeframe}{RGB}{209,217,224}
+\definecolor{noteblue}{RGB}{232,242,255}
+\definecolor{noteframe}{RGB}{0,102,204}
+\definecolor{warnbg}{RGB}{255,248,225}
+\definecolor{warnframe}{RGB}{200,150,0}
+\definecolor{darkgray}{RGB}{80,80,80}
+
+% ── Hyperref ──────────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  linkcolor=pfblue,
+  urlcolor=pfblue,
+  citecolor=pfblue,
+  pdftitle={VM Migration Toolkit Dashboard — Technical Documentation},
+  pdfauthor={Estee Cohen},
+}
+
+% ── Section headings ──────────────────────────────────────────────────────────
+\titleformat{\section}{\large\bfseries\color{rhred}}{}{0em}{}[\vspace{-0.3em}\color{rhred}\rule{\linewidth}{0.8pt}]
+\titleformat{\subsection}{\normalsize\bfseries\color{pfblue}}{}{0em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{darkgray}}{}{0em}{}
+
+% ── Code listings ─────────────────────────────────────────────────────────────
+\lstset{
+  basicstyle=\small\ttfamily,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  framesep=6pt,
+  framerule=0.5pt,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  keywordstyle=\color{pfblue}\bfseries,
+  stringstyle=\color{rhred},
+  commentstyle=\color{darkgray}\itshape,
+  numbers=none,
+  xleftmargin=8pt,
+  xrightmargin=8pt,
+}
+
+% ── Callout boxes ─────────────────────────────────────────────────────────────
+\newmdenv[
+  backgroundcolor=noteblue,
+  linecolor=noteframe,
+  linewidth=2pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=12pt, innerrightmargin=8pt,
+  innertopmargin=8pt, innerbottommargin=8pt,
+  skipabove=6pt, skipbelow=6pt,
+]{notebox}
+
+\newmdenv[
+  backgroundcolor=warnbg,
+  linecolor=warnframe,
+  linewidth=2pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=12pt, innerrightmargin=8pt,
+  innertopmargin=8pt, innerbottommargin=8pt,
+  skipabove=6pt, skipbelow=6pt,
+]{warnbox}
+
+% ── Headers / footers ─────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{darkgray} VM Migration Toolkit Dashboard}
+\fancyhead[R]{\small\color{darkgray} Technical Documentation}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Table helpers ─────────────────────────────────────────────────────────────
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+% ── Misc ──────────────────────────────────────────────────────────────────────
+\setlength{\parindent}{0pt}
+\setlist[itemize]{itemsep=2pt, topsep=4pt}
+\setlist[enumerate]{itemsep=2pt, topsep=4pt}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{document}
+
+% ── Title page ────────────────────────────────────────────────────────────────
+\begin{titlepage}
+  \centering
+  \vspace*{3cm}
+  {\huge\bfseries VM Migration Toolkit Dashboard\par}
+  \vspace{0.6cm}
+  {\large\color{darkgray} Technical Documentation and Project Overview\par}
+  \vspace{2cm}
+  \begin{mdframed}[linecolor=codeframe, backgroundcolor=codebg, innertopmargin=14pt, innerbottommargin=14pt]
+    \centering
+    A full-stack demonstration application modeled after\\
+    \textbf{Red Hat Migration Toolkit for Virtualization (MTV)} and its open-source\\
+    engine \textbf{Forklift} ({\ttfamily forklift.konveyor.io})\\[0.4em]
+    \small Built with React 19, TypeScript, PatternFly 6, Express 5, and lowdb
+  \end{mdframed}
+  \vspace{2cm}
+  \begin{tabular}{ll}
+    \textbf{Author:}       & Estee Cohen \\[4pt]
+    \textbf{Date:}         & June 2026 \\[4pt]
+    \textbf{Repository:}   & \href{https://github.com/YOUR\_USERNAME/vm-migration-dashboard-demo}{github.com/YOUR\_USERNAME/vm-migration-dashboard-demo} \\[4pt]
+    \textbf{Related role:} & Red Hat R-055028 — OpenShift Migration \& Virtualization UI \\
+  \end{tabular}
+  \vfill
+  {\small\color{darkgray}
+    This document describes a personal study project. All provider URLs, VM names,\\
+    and migration plans are synthetic demo data. No real infrastructure is involved.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Executive Summary}
+
+This project is a fully functional web application that recreates the core user experience of Red Hat's Migration Toolkit for Virtualization (MTV). It was built to demonstrate hands-on familiarity with the exact technology stack used by the Red Hat MTV/Forklift UI team: React, TypeScript, and PatternFly 6.
+
+The application manages the complete lifecycle of a virtual machine migration: discovering source providers (VMware, oVirt, OpenStack), building migration plans through a multi-step wizard, executing migrations with live progress tracking, and exporting plans as Kubernetes Custom Resource Definition (CRD) YAML files that a real Forklift installation can apply directly.
+
+Beyond UI, the project includes a real Express 5 REST API backend, a JSON file database (lowdb), Server-Sent Events for live updates, role-based access control, a multi-language interface (English and Hebrew with RTL support), dark mode, and end-to-end tests with Playwright running in a GitHub Actions CI pipeline.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{What is a VM Migration and Why Does It Matter?}
+
+\subsection{The problem}
+
+Many organisations run hundreds or thousands of applications on \emph{virtual machines} (VMs) — software-based computers that run on physical server hardware. Common platforms that host VMs include VMware vSphere, Red Hat Virtualisation (oVirt), and OpenStack.
+
+Over the last decade, Kubernetes has emerged as the dominant way to run modern workloads. Kubernetes lets you package applications in containers, manage them declaratively, and scale them automatically. Red Hat's enterprise Kubernetes distribution is \textbf{OpenShift}.
+
+The challenge: moving workloads from VMs to Kubernetes is complex. A VM contains an entire operating system, a full disk image, network configuration, and application software. Simply copying it does not work — Kubernetes does not run VMs the way VMware does.
+
+\subsection{The solution: KubeVirt and MTV}
+
+\textbf{KubeVirt} is an open-source Kubernetes extension that allows VMs to run \emph{inside} a Kubernetes cluster. This means you can run a legacy VM on OpenShift without rewriting the application. \textbf{OpenShift Virtualization} is Red Hat's supported version of KubeVirt.
+
+\textbf{Migration Toolkit for Virtualization (MTV)} is the Red Hat product — and its open-source upstream \textbf{Forklift} — that automates the process of migrating VMs into an OpenShift cluster running KubeVirt. It handles:
+
+\begin{itemize}
+  \item Connecting to source hypervisors (VMware, oVirt, OpenStack) via their APIs
+  \item Inventorying available VMs
+  \item Mapping source networks and storage classes to Kubernetes equivalents
+  \item Converting VM disk formats to the format KubeVirt expects
+  \item Running the migration in phases (pre-copy, cutover) to minimise downtime
+  \item Providing status and progress information
+\end{itemize}
+
+This dashboard project recreates the \emph{management UI} for this entire workflow.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Technology Stack}
+
+\subsection{Frontend}
+
+\begin{longtable}{L{3.6cm} L{3cm} L{8cm}}
+  \toprule
+  \textbf{Technology} & \textbf{Version} & \textbf{Why it was chosen} \\
+  \midrule
+  \endhead
+  React              & 19.2            & Industry-standard UI library; used by the real MTV UI \\
+  TypeScript         & 6.0             & Type safety across the full stack; required by the role \\
+  PatternFly 6       & 6.4             & Red Hat's enterprise React design system — the same library used in every Red Hat product UI \\
+  React Router v7    & 7.15            & Client-side routing with nested routes and protected pages \\
+  Victory Charts     & 37.3            & PatternFly-compatible chart library for the dashboard area and donut charts \\
+  Vite               & 8.0             & Fast dev server with HMR; used in modern React projects \\
+  \bottomrule
+\end{longtable}
+
+\subsection{Backend}
+
+\begin{longtable}{L{3.6cm} L{3cm} L{8cm}}
+  \toprule
+  \textbf{Technology} & \textbf{Version} & \textbf{Purpose} \\
+  \midrule
+  \endhead
+  Express 5          & 5.2             & REST API server; async route handlers without try/catch boilerplate \\
+  lowdb              & 7.0             & Lightweight JSON file database — no separate database process needed \\
+  Node.js            & 20+             & Runtime for the server; native \texttt{fetch}, \texttt{crypto.randomUUID()} \\
+  tsx                & 4.22            & Runs TypeScript server files directly during development \\
+  \bottomrule
+\end{longtable}
+
+\subsection{Testing and CI/CD}
+
+\begin{longtable}{L{3.6cm} L{3cm} L{8cm}}
+  \toprule
+  \textbf{Technology} & \textbf{Version} & \textbf{Purpose} \\
+  \midrule
+  \endhead
+  Vitest             & 4.1             & Unit tests for React components and utility functions \\
+  Testing Library    & 16.3            & React component rendering and user interaction helpers \\
+  Playwright         & 1.60            & Browser-based end-to-end tests \\
+  GitHub Actions     & —               & CI pipeline: install, lint, type-check, unit test, E2E test \\
+  \bottomrule
+\end{longtable}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{How to Run the Project Locally (Step by Step)}
+
+This section is written for someone who has never run a web application from source code before.
+
+\subsection{What you need to install first}
+
+\textbf{Step 1: Install Node.js}
+
+Node.js is the runtime that makes JavaScript code run on your computer. Go to \url{https://nodejs.org}, download the LTS version (anything 20 or newer), and install it. When the installer finishes, open a terminal and type:
+
+\begin{lstlisting}
+node --version
+\end{lstlisting}
+
+You should see something like \texttt{v20.11.0}. If you do, Node is installed correctly.
+
+\textbf{Step 2: Install Git}
+
+Git is a tool for downloading code from the internet. Go to \url{https://git-scm.com/downloads} and install it for your operating system.
+
+\textbf{Step 3: Open a terminal}
+
+On Windows: press \texttt{Win + R}, type \texttt{cmd} or \texttt{powershell}, press Enter.\\
+On Mac: open the Terminal app from Applications $\to$ Utilities.\\
+On Linux: you already know how.
+
+\subsection{Downloading the project}
+
+In your terminal, run the following commands one at a time. After each command, wait for it to finish before typing the next one.
+
+\begin{lstlisting}
+git clone https://github.com/YOUR_USERNAME/vm-migration-dashboard-demo.git
+cd vm-migration-dashboard-demo
+npm install
+\end{lstlisting}
+
+The \texttt{npm install} step downloads all the libraries the project depends on. It may take a minute. You will see a lot of text scroll past — this is normal.
+
+\subsection{Starting the application}
+
+\begin{lstlisting}
+npm run dev
+\end{lstlisting}
+
+This starts two things at once:
+\begin{itemize}
+  \item The \textbf{frontend} (what you see in the browser) at \url{http://localhost:5173}
+  \item The \textbf{backend API server} at \url{http://localhost:3001}
+\end{itemize}
+
+Open your browser and go to \url{http://localhost:5173}. You will see the login screen.
+
+\subsection{Signing in}
+
+Two accounts exist out of the box:
+
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  \textbf{Account} & \textbf{Username} & \textbf{Password} \\
+  \midrule
+  Demo user (read and create) & \texttt{demo}  & \texttt{demo}  \\
+  Admin (full access)         & \texttt{admin} & \texttt{admin} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+You can also click the \textbf{DEMO} or \textbf{ADMIN} buttons on the login page to fill in the credentials automatically.
+
+\subsection{Stopping the application}
+
+Go back to the terminal window where you ran \texttt{npm run dev} and press \texttt{Ctrl + C}. The servers will stop.
+
+\subsection{If something goes wrong}
+
+\begin{warnbox}
+\textbf{``Port 5173 is already in use''} — Another application is using that port. Either close the other application, or edit \texttt{vite.config.ts} and change the port number.
+
+\textbf{``Cannot find module''} — Run \texttt{npm install} again. A dependency may not have downloaded correctly.
+
+\textbf{``EACCES permission denied''} — On Mac/Linux, prefix with \texttt{sudo}. On Windows, run the terminal as Administrator.
+\end{warnbox}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Application Features in Detail}
+
+\subsection{Dashboard Page}
+
+The dashboard is the first page you see after logging in. It shows a high-level summary of the migration estate:
+
+\begin{itemize}
+  \item \textbf{Summary cards} — total plans, running migrations, succeeded migrations, and VMs migrated. Each card has a coloured status indicator.
+  \item \textbf{Status breakdown donut chart} — shows the proportion of migration plans in each state (running, succeeded, failed, draft, ready).
+  \item \textbf{Weekly activity area chart} — a fictional trend line showing migrations per day of the week. Rendered with Victory Charts; correctly handles dark mode and Hebrew RTL layout (the chart is always rendered left-to-right regardless of page direction).
+  \item \textbf{Recent plans table} — the five most recently created migration plans with name, source and target providers, status badge, and progress bar.
+\end{itemize}
+
+\subsection{Providers Page}
+
+Providers are the connections to source and target hypervisors. This page lists all configured providers and supports full CRUD (Create, Read, Update, Delete) operations.
+
+\begin{itemize}
+  \item \textbf{Add provider} — opens a modal. Requires name, type (VMware, oVirt, OpenStack, or OpenShift), and API URL. Authenticated users can add providers; the server validates that all fields are present.
+  \item \textbf{Edit provider} — admin users only. Opens a pre-populated form modal. Changes are sent to the server and persisted to the JSON database.
+  \item \textbf{Delete provider} — admin users only. A confirmation modal prevents accidental deletion.
+  \item \textbf{Status badges} — ready (green), error (red), unknown (grey).
+  \item \textbf{Toast notifications} — every operation shows a dismissing notification in the top-right corner that auto-fades after 10 seconds.
+\end{itemize}
+
+\subsection{Migration Plans Page and Wizard}
+
+Migration plans define which VMs to move, from which provider, to which target, and with which network and storage mappings.
+
+\textbf{Plan list page}:
+\begin{itemize}
+  \item Filter by status, provider, and free-text search
+  \item Status badge for each plan
+  \item Progress bar for running migrations
+  \item Action buttons: start migration, view details, export YAML
+\end{itemize}
+
+\textbf{Create plan wizard} (\texttt{/plans/new}):
+
+The wizard guides the user through four steps:
+\begin{enumerate}
+  \item \textbf{General} — plan name and description
+  \item \textbf{Providers} — select source and target providers from the loaded list
+  \item \textbf{VMs} — select which VMs to migrate (filtered by source provider)
+  \item \textbf{Mappings} — define network map (source network $\to$ Kubernetes pod network) and storage map (source datastore $\to$ Kubernetes storage class)
+\end{enumerate}
+
+Each step validates its own fields before the Next button becomes active.
+
+\textbf{YAML export}: clicking Export on any plan generates and downloads a \texttt{.yaml} file containing the Kubernetes CRD objects for that plan. See Section~\ref{sec:yaml} for a full explanation.
+
+\subsection{Plan Detail Page and Live Progress}
+
+Opening a plan shows its full details. If the plan is in a startable state (\texttt{ready} or \texttt{draft}), clicking \textbf{Start Migration} begins the process.
+
+The progress view connects to the backend via \textbf{Server-Sent Events} (SSE) — a standard web technology where the server pushes updates to the browser in real time without the browser having to ask repeatedly. Each VM in the plan gets its own progress row showing:
+
+\begin{itemize}
+  \item Current phase: \texttt{pending} $\to$ \texttt{precopy} $\to$ \texttt{cutover} $\to$ \texttt{completed}
+  \item Percentage progress (animated progress bar)
+  \item Start time and (when done) completion time
+  \item Error message if the phase failed
+\end{itemize}
+
+The simulation runs at 3 real seconds per tick, with each VM staggered by 15 progress points to simulate a realistic multi-VM migration.
+
+\subsection{KubeVirt Cluster Page}
+
+This page shows the target OpenShift cluster as it would appear after migration. It displays:
+
+\begin{itemize}
+  \item A summary of migrated VMs with their KubeVirt status (Running, Stopped)
+  \item Resource usage columns: CPU count, RAM (GB), disk size (GB)
+  \item Operating system information
+  \item Namespace assignment (\texttt{migrated-vms})
+\end{itemize}
+
+This view represents what an operator would see in the OpenShift web console under Virtualization $\to$ VirtualMachines.
+
+\subsection{Internationalisation (i18n)}
+
+The application supports two languages switchable at runtime:
+
+\begin{itemize}
+  \item \textbf{English} (left-to-right) — default
+  \item \textbf{Hebrew} — right-to-left (RTL), including mirrored navigation layout
+\end{itemize}
+
+Switching language re-renders the entire page instantly (a \texttt{key} prop on the router outlet forces a React unmount/remount). All string content is defined in a central \texttt{src/i18n.ts} translation map.
+
+\subsection{Dark Mode}
+
+A sun/moon toggle in the header applies PatternFly's \texttt{pf-v6-theme-dark} CSS class to the document root. The theme applies immediately across all components. Special handling exists for Victory Charts, whose SVG \texttt{fill} attributes do not inherit CSS custom properties — hardcoded hex colours are computed from a \texttt{useIsDark()} hook that watches the theme class with a \texttt{MutationObserver}.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Authentication System}
+
+\subsection{Overview}
+
+The application uses a token-based authentication system. When you log in, the server creates a random session token (a UUID) and stores it in memory alongside your user ID. The browser stores this token in \texttt{localStorage} and sends it with every subsequent API request in the \texttt{Authorization: Bearer <token>} HTTP header.
+
+\subsection{User accounts}
+
+Two accounts are seeded automatically when the server starts for the first time:
+
+\begin{center}
+\begin{tabular}{llll}
+  \toprule
+  \textbf{Username} & \textbf{Password} & \textbf{Role} & \textbf{What they can do} \\
+  \midrule
+  \texttt{demo}  & \texttt{demo}  & demo  & View everything; create plans and providers \\
+  \texttt{admin} & \texttt{admin} & admin & All demo permissions plus edit and delete \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+New accounts registered through the Sign Up form always receive the \texttt{demo} role.
+
+\subsection{Sign up with username and password}
+
+The Sign Up tab on the login page lets anyone create a new account. Required fields:
+\begin{itemize}
+  \item Display name (shown in the header)
+  \item Username (must be unique)
+  \item Password and confirmation
+\end{itemize}
+
+The backend endpoint \texttt{POST /api/auth/register} validates uniqueness before writing the new user to the database.
+
+\begin{warnbox}
+\textbf{Security note:} Passwords are stored as plain text in the JSON database. This is intentional for a demo project — no real credentials are involved. A production system must use \texttt{bcrypt} or similar hashing before storing passwords.
+\end{warnbox}
+
+\subsection{Sign in with Google (OAuth 2.0)}
+
+The login page includes a Google Sign-In button. When clicked:
+
+\begin{enumerate}
+  \item The browser opens Google's OAuth consent screen.
+  \item Google returns a signed \textbf{ID token} (a JSON Web Token / JWT).
+  \item The frontend sends this token to \texttt{POST /api/auth/google}.
+  \item The backend verifies the token by calling Google's public verification endpoint: \\ \texttt{https://oauth2.googleapis.com/tokeninfo?id\_token=<TOKEN>}
+  \item Google returns the verified user's email and name.
+  \item The backend finds or creates a \texttt{demo}-role account for that email address.
+  \item A session token is issued and returned the same way as password login.
+\end{enumerate}
+
+\textbf{To enable Google Sign-In in your own copy of this project:}
+
+\begin{enumerate}
+  \item Go to \url{https://console.cloud.google.com} and create a new project.
+  \item Enable the \textbf{Google Identity API}.
+  \item Create OAuth 2.0 credentials of type \textbf{Web application}.
+  \item Add \texttt{http://localhost:5173} to the list of \emph{Authorised JavaScript origins}.
+  \item Copy the \textbf{Client ID}.
+  \item Create a file called \texttt{.env.local} in the project root with this content:
+\begin{lstlisting}
+VITE_GOOGLE_CLIENT_ID=YOUR_CLIENT_ID_HERE.apps.googleusercontent.com
+\end{lstlisting}
+  \item Restart the development server (\texttt{npm run dev}).
+\end{enumerate}
+
+Without this configuration the Google button is visible but disabled, and all other authentication features continue to work.
+
+\subsection{Session persistence}
+
+Sessions are stored in a JavaScript \texttt{Map} in the server process memory. This means sessions are lost if the server restarts — intentional for a demo. A production system would store sessions in Redis or a database table.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Database Documentation}
+\label{sec:db}
+
+\subsection{Storage format}
+
+The database is a single JSON file stored at \texttt{.db/db.json} in the project root. It is read into memory when the server starts and written to disk after every mutation. The \textbf{lowdb} library manages this transparently.
+
+To reset the database to its default state, simply delete the \texttt{.db/} folder and restart the server:
+
+\begin{lstlisting}
+# Stop the server first (Ctrl+C), then:
+rm -rf .db
+npm run dev
+\end{lstlisting}
+
+\subsection{Schema}
+
+The database contains four top-level arrays:
+
+\subsubsection{users}
+
+\begin{center}
+\begin{tabular}{llL{7cm}}
+  \toprule
+  \textbf{Field} & \textbf{Type} & \textbf{Description} \\
+  \midrule
+  \texttt{id}          & string & Unique identifier, e.g.\ \texttt{user-demo} \\
+  \texttt{username}    & string & Login name; must be unique \\
+  \texttt{password}    & string & Plain-text password (demo only) \\
+  \texttt{role}        & string & Either \texttt{"demo"} or \texttt{"admin"} \\
+  \texttt{displayName} & string & Human-readable name shown in the UI header \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection{providers}
+
+\begin{center}
+\begin{tabular}{llL{7cm}}
+  \toprule
+  \textbf{Field} & \textbf{Type} & \textbf{Description} \\
+  \midrule
+  \texttt{id}       & string & Unique identifier, e.g.\ \texttt{prov-vmware-prod} \\
+  \texttt{name}     & string & Human-readable name \\
+  \texttt{kind}     & string & One of: \texttt{vmware}, \texttt{ovirt}, \texttt{openstack}, \texttt{openshift} \\
+  \texttt{url}      & string & API endpoint of the provider \\
+  \texttt{status}   & string & One of: \texttt{ready}, \texttt{error}, \texttt{unknown} \\
+  \texttt{vmCount}  & number & Number of VMs available from this provider \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Seeded with 6 providers: 2 VMware, 1 oVirt, 1 OpenStack, 2 OpenShift (source and target clusters).
+
+\subsubsection{vms}
+
+\begin{center}
+\begin{tabular}{llL{6.5cm}}
+  \toprule
+  \textbf{Field} & \textbf{Type} & \textbf{Description} \\
+  \midrule
+  \texttt{id}             & string & Unique identifier, e.g.\ \texttt{vm-001} \\
+  \texttt{name}           & string & VM hostname \\
+  \texttt{sourceProvider} & string & Foreign key to a provider \texttt{id} \\
+  \texttt{cpu}            & number & Number of vCPUs \\
+  \texttt{memoryGB}       & number & RAM in gigabytes \\
+  \texttt{diskGB}         & number & Total disk size in gigabytes \\
+  \texttt{powerState}     & string & One of: \texttt{on}, \texttt{off}, \texttt{suspended} \\
+  \texttt{os}             & string & Operating system name and version \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Seeded with 20 VMs across all source providers — RHEL 8/9, CentOS 7, Ubuntu 22.04, RHEL CoreOS.
+
+\subsubsection{plans}
+
+\begin{center}
+\begin{tabular}{llL{6.5cm}}
+  \toprule
+  \textbf{Field} & \textbf{Type} & \textbf{Description} \\
+  \midrule
+  \texttt{id}          & string & Unique identifier \\
+  \texttt{name}        & string & Plan name (used as the YAML filename) \\
+  \texttt{description} & string & Human-readable purpose \\
+  \texttt{source}      & string & Provider ID of the source hypervisor \\
+  \texttt{target}      & string & Provider ID of the target OpenShift cluster \\
+  \texttt{vms}         & array  & List of VM IDs included in this plan \\
+  \texttt{networkMap}  & object & \texttt{\{id, name, sourceNetwork, targetNetwork\}} \\
+  \texttt{storageMap}  & object & \texttt{\{id, name, sourceStorage, targetStorage\}} \\
+  \texttt{status}      & string & One of: \texttt{draft}, \texttt{ready}, \texttt{running}, \texttt{succeeded}, \texttt{failed} \\
+  \texttt{progress}    & number & Overall completion percentage (0--100) \\
+  \texttt{createdAt}   & string & ISO 8601 timestamp \\
+  \texttt{steps}       & array  & Per-VM progress objects (see below) \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Each element of \texttt{steps}:
+
+\begin{center}
+\begin{tabular}{llL{6cm}}
+  \toprule
+  \textbf{Field} & \textbf{Type} & \textbf{Description} \\
+  \midrule
+  \texttt{vmId}            & string & Matches a VM's \texttt{id} field \\
+  \texttt{phase}           & string & \texttt{pending}, \texttt{precopy}, \texttt{cutover}, \texttt{completed}, or \texttt{failed} \\
+  \texttt{progressPercent} & number & 0--100 \\
+  \texttt{startedAt}       & string & ISO 8601 timestamp (optional) \\
+  \texttt{completedAt}     & string & ISO 8601 timestamp (optional) \\
+  \texttt{error}           & string & Error message (optional, only when failed) \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Full API Reference}
+\label{sec:api}
+
+The backend runs on \texttt{http://localhost:3001}. All request and response bodies use JSON. Endpoints marked \textbf{Auth} require an \texttt{Authorization: Bearer <token>} header. Endpoints marked \textbf{Admin} additionally require the authenticated user to have the \texttt{admin} role.
+
+\subsection{Authentication endpoints}
+
+\subsubsection{\texttt{POST /api/auth/login}}
+
+Authenticate with username and password.
+
+\textbf{Request body:}
+\begin{lstlisting}[language={}]
+{ "username": "admin", "password": "admin" }
+\end{lstlisting}
+
+\textbf{Response (200):}
+\begin{lstlisting}[language={}]
+{
+  "token": "550e8400-e29b-41d4-a716-446655440000",
+  "user": {
+    "id": "user-admin",
+    "username": "admin",
+    "role": "admin",
+    "displayName": "Admin"
+  }
+}
+\end{lstlisting}
+
+\textbf{Error responses:} \texttt{400} missing fields, \texttt{401} invalid credentials.
+
+\subsubsection{\texttt{GET /api/auth/me} \textnormal{\textbf{[Auth]}}}
+
+Returns the currently authenticated user.
+
+\textbf{Response (200):} same user object as login response (without token).
+
+\textbf{Error:} \texttt{401} if no valid token is provided.
+
+\subsubsection{\texttt{POST /api/auth/logout} \textnormal{\textbf{[Auth]}}}
+
+Invalidates the current session token.
+
+\textbf{Response (200):} \texttt{\{"ok": true\}}
+
+\subsubsection{\texttt{POST /api/auth/register}}
+
+Create a new user account (always assigned \texttt{demo} role).
+
+\textbf{Request body:}
+\begin{lstlisting}[language={}]
+{
+  "displayName": "Jane Smith",
+  "username": "jsmith",
+  "password": "mysecret"
+}
+\end{lstlisting}
+
+\textbf{Response (201):} token + user object (same format as login).
+
+\textbf{Error responses:} \texttt{400} missing fields, \texttt{409} username already taken.
+
+\subsubsection{\texttt{POST /api/auth/google}}
+
+Authenticate via Google OAuth 2.0 ID token.
+
+\textbf{Request body:}
+\begin{lstlisting}[language={}]
+{ "credential": "<Google ID token JWT>" }
+\end{lstlisting}
+
+\textbf{Response (200):} token + user object. The user is created automatically if signing in for the first time.
+
+\textbf{Error responses:} \texttt{400} missing credential, \texttt{401} invalid token.
+
+\subsection{Provider endpoints}
+
+\subsubsection{\texttt{GET /api/providers}}
+
+Returns all providers. No authentication required.
+
+\textbf{Response (200):} array of provider objects.
+
+\subsubsection{\texttt{POST /api/providers} \textnormal{\textbf{[Auth]}}}
+
+Create a new provider.
+
+\textbf{Request body:}
+\begin{lstlisting}[language={}]
+{ "name": "my-vsphere", "kind": "vmware", "url": "https://vcenter.example.com" }
+\end{lstlisting}
+
+\textbf{Response (201):} the created provider with generated \texttt{id}.
+
+\subsubsection{\texttt{PUT /api/providers/:id} \textnormal{\textbf{[Admin]}}}
+
+Update an existing provider. Send only the fields you want to change.
+
+\textbf{Response (200):} the updated provider object.
+
+\textbf{Error:} \texttt{404} if ID not found.
+
+\subsubsection{\texttt{DELETE /api/providers/:id} \textnormal{\textbf{[Admin]}}}
+
+Delete a provider.
+
+\textbf{Response (200):} \texttt{\{"ok": true\}}
+
+\textbf{Error:} \texttt{404} if ID not found.
+
+\subsection{VM endpoint}
+
+\subsubsection{\texttt{GET /api/vms}}
+
+Returns all VMs. No authentication required.
+
+\textbf{Response (200):} array of VM objects.
+
+\subsection{Plan endpoints}
+
+\subsubsection{\texttt{GET /api/plans}}
+
+Returns all plans. No authentication required.
+
+\subsubsection{\texttt{GET /api/plans/:id}}
+
+Returns a single plan by ID.
+
+\textbf{Error:} \texttt{404} if not found.
+
+\subsubsection{\texttt{POST /api/plans} \textnormal{\textbf{[Auth]}}}
+
+Create a new migration plan.
+
+\textbf{Request body:}
+\begin{lstlisting}[language={}]
+{
+  "name": "my-plan",
+  "description": "Move web tier to OCP",
+  "source": "prov-vmware-prod",
+  "target": "prov-ocp-target",
+  "vms": ["vm-001", "vm-002"],
+  "networkMap": {
+    "id": "nm-001", "name": "prod-net",
+    "sourceNetwork": "VM Network",
+    "targetNetwork": "pod-network"
+  },
+  "storageMap": {
+    "id": "sm-001", "name": "prod-storage",
+    "sourceStorage": "datastore-ssd",
+    "targetStorage": "ocs-storagecluster-ceph-rbd"
+  },
+  "status": "ready",
+  "progress": 0,
+  "steps": [
+    { "vmId": "vm-001", "phase": "pending", "progressPercent": 0 },
+    { "vmId": "vm-002", "phase": "pending", "progressPercent": 0 }
+  ]
+}
+\end{lstlisting}
+
+\textbf{Response (201):} the created plan with generated \texttt{id} and \texttt{createdAt}.
+
+\subsubsection{\texttt{PUT /api/plans/:id} \textnormal{\textbf{[Auth]}}}
+
+Partially update a plan. Used internally by the SSE migration engine.
+
+\subsection{Server-Sent Events endpoint}
+
+\subsubsection{\texttt{GET /api/plans/:id/events}}
+
+Opens a persistent HTTP connection that streams migration progress updates. No polling is needed — the server pushes each update as a \texttt{data:} line.
+
+\textbf{Response headers:}
+\begin{lstlisting}[language={}]
+Content-Type: text/event-stream
+Cache-Control: no-cache
+Connection: keep-alive
+\end{lstlisting}
+
+\textbf{Each event payload (JSON):}
+\begin{lstlisting}[language={}]
+{
+  "steps": [
+    { "vmId": "vm-001", "phase": "precopy", "progressPercent": 42, "startedAt": "..." },
+    { "vmId": "vm-002", "phase": "pending", "progressPercent": 0 }
+  ],
+  "progress": 21
+}
+\end{lstlisting}
+
+When migration completes, a final event is sent:
+\begin{lstlisting}[language={}]
+{ "status": "succeeded", "progress": 100 }
+\end{lstlisting}
+
+The browser-side implementation uses the native \texttt{EventSource} Web API. The connection is closed automatically when the user navigates away.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{The YAML Export — What It Is and How to Use It}
+\label{sec:yaml}
+
+\subsection{What is a Kubernetes Custom Resource?}
+
+Kubernetes manages infrastructure using \emph{declarative configuration} — you describe what you want, and Kubernetes makes it happen. The configuration format is YAML. Kubernetes comes with built-in resource types like \texttt{Pod}, \texttt{Deployment}, and \texttt{Service}.
+
+\textbf{Custom Resource Definitions (CRDs)} let projects extend Kubernetes with their own types. Forklift defines CRDs for \texttt{Provider}, \texttt{Plan}, and \texttt{Migration}. You manage migrations by creating YAML files with these types and applying them to the cluster.
+
+\subsection{What the export produces}
+
+Clicking \textbf{Export YAML} on any migration plan generates a file containing three Kubernetes resource definitions in a single multi-document YAML file (sections separated by \texttt{---}).
+
+Here is an example of an exported file for the ``cache-layer-migration'' plan:
+
+\begin{lstlisting}[language={}]
+apiVersion: forklift.konveyor.io/v1beta1
+kind: Provider
+metadata:
+  name: openstack-west
+  namespace: openshift-mtv
+  labels:
+    app.kubernetes.io/part-of: forklift
+spec:
+  type: openstack
+  url: "https://keystone.west.example.com:5000"
+  secret:
+    name: openstack-west-credentials
+    namespace: openshift-mtv
+---
+apiVersion: forklift.konveyor.io/v1beta1
+kind: Provider
+metadata:
+  name: ocp-cluster-prod
+  namespace: openshift-mtv
+spec:
+  type: openshift
+  url: "https://api.ocp.prod.example.com:6443"
+  secret:
+    name: ocp-cluster-prod-credentials
+    namespace: openshift-mtv
+---
+apiVersion: forklift.konveyor.io/v1beta1
+kind: Plan
+metadata:
+  name: cache-layer-migration
+  namespace: openshift-mtv
+spec:
+  description: Move Redis cache cluster from OpenStack to OCP
+  provider:
+    source:
+      name: openstack-west
+      namespace: openshift-mtv
+    destination:
+      name: ocp-cluster-prod
+      namespace: openshift-mtv
+  targetNamespace: migrated-vms
+  vms:
+    - id: vm-017
+      name: cache-redis-01
+    - id: vm-018
+      name: cache-redis-02
+---
+apiVersion: forklift.konveyor.io/v1beta1
+kind: Migration
+metadata:
+  name: cache-layer-migration-migration
+  namespace: openshift-mtv
+spec:
+  plan:
+    name: cache-layer-migration
+    namespace: openshift-mtv
+\end{lstlisting}
+
+\subsection{Field-by-field explanation}
+
+\begin{longtable}{L{4.5cm} L{9.5cm}}
+  \toprule
+  \textbf{Field} & \textbf{Meaning} \\
+  \midrule
+  \endhead
+  \texttt{apiVersion} & The Forklift API group and version. Real Forklift uses exactly this value. \\
+  \texttt{kind: Provider} & Tells Kubernetes this describes a hypervisor connection. \\
+  \texttt{kind: Plan} & Describes what to migrate, from where, and to where. \\
+  \texttt{kind: Migration} & Triggers the actual migration by referencing a Plan. \\
+  \texttt{namespace: openshift-mtv} & The Kubernetes namespace where Forklift is installed. \\
+  \texttt{spec.type} & Provider type: \texttt{vsphere}, \texttt{ovirt}, \texttt{openstack}, or \texttt{openshift}. \\
+  \texttt{spec.url} & The API endpoint Forklift will connect to. \\
+  \texttt{secret.name} & Reference to a Kubernetes Secret containing credentials. The Secret is not included in the export; it must exist already. \\
+  \texttt{spec.targetNamespace} & The namespace in the destination cluster where the migrated VMs will be created. \\
+  \texttt{spec.vms[].id} & The VM's identifier as it exists in the source provider's inventory. \\
+  \bottomrule
+\end{longtable}
+
+\subsection{How to apply the YAML to a real Forklift installation}
+
+\begin{warnbox}
+\textbf{Important:} This requires an active OpenShift cluster with Forklift installed. The following steps are for educational reference — they describe what a real operator would do, not something this demo can do on its own.
+\end{warnbox}
+
+\begin{enumerate}
+  \item Install the Migration Toolkit for Virtualization operator from the OpenShift OperatorHub.
+  \item Create Kubernetes Secrets containing the credentials for each provider:
+\begin{lstlisting}[language={}]
+kubectl create secret generic openstack-west-credentials \
+  -n openshift-mtv \
+  --from-literal=user=admin \
+  --from-literal=password=secret \
+  --from-literal=domainName=Default
+\end{lstlisting}
+  \item Apply the exported YAML:
+\begin{lstlisting}[language={}]
+kubectl apply -f cache-layer-migration.yaml
+\end{lstlisting}
+  \item Forklift's operator detects the new \texttt{Migration} resource and begins the migration.
+  \item Monitor progress in the OpenShift web console under \textbf{Migration} $\to$ \textbf{Plans}.
+\end{enumerate}
+
+The YAML exported by this demo uses the exact same schema that the Forklift operator expects, making it directly usable without modification (assuming the provider URLs and credentials are real).
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Comparison to Red Hat MTV and Forklift}
+\label{sec:comparison}
+
+\subsection{What Red Hat MTV actually is}
+
+MTV is a product layered on top of Forklift, the upstream open-source project. The Forklift UI lives at \url{https://github.com/kubev2v/forklift-ui} and was recently being migrated to a new codebase using React, TypeScript, and PatternFly 6 — the exact same stack as this project.
+
+MTV consists of:
+\begin{itemize}
+  \item \textbf{forklift-controller}: Kubernetes operator that reconciles Provider, Plan, and Migration CRDs
+  \item \textbf{forklift-validation}: Validates provider connections and inventory
+  \item \textbf{virt-v2v}: The actual disk conversion tool (converts VMDK/QCOW2 to KubeVirt format)
+  \item \textbf{forklift-ui}: The React/PatternFly web console plugin
+\end{itemize}
+
+\subsection{Feature comparison table}
+
+\begin{longtable}{L{5cm} C{2.8cm} C{2.8cm}}
+  \toprule
+  \textbf{Feature} & \textbf{This project} & \textbf{Real MTV} \\
+  \midrule
+  \endhead
+  React + TypeScript frontend & \checkmark & \checkmark \\
+  PatternFly 6 design system  & \checkmark & \checkmark \\
+  Provider management CRUD    & \checkmark & \checkmark \\
+  Multi-step migration wizard & \checkmark & \checkmark \\
+  Per-VM progress tracking    & \checkmark (simulated) & \checkmark (real) \\
+  Network mapping             & \checkmark & \checkmark \\
+  Storage class mapping       & \checkmark & \checkmark \\
+  Kubernetes YAML export      & \checkmark & \checkmark \\
+  CRD schema (forklift.konveyor.io) & \checkmark & \checkmark \\
+  Warm migration (pre-copy)   & \checkmark (simulated phases) & \checkmark (real disk sync) \\
+  Cold migration              & — & \checkmark \\
+  Hook support                & — & \checkmark \\
+  Cancellation and rollback   & — & \checkmark \\
+  Real hypervisor API calls   & — & \checkmark \\
+  Real disk conversion        & — & \checkmark (virt-v2v) \\
+  OCP console plugin          & — & \checkmark \\
+  Hebrew/English i18n         & \checkmark & Partial \\
+  Dark mode                   & \checkmark & Partial \\
+  Role-based access control   & \checkmark (demo) & \checkmark (via OCP RBAC) \\
+  Live progress via SSE       & \checkmark & \checkmark (WebSocket) \\
+  Unit and E2E tests          & \checkmark & \checkmark \\
+  CI pipeline                 & \checkmark & \checkmark \\
+  \bottomrule
+\end{longtable}
+
+\subsection{What is real vs.\ simulated}
+
+\begin{itemize}
+  \item \textbf{Real}: REST API with actual HTTP calls, persistent JSON database, session-based authentication, Google OAuth verification against Google's live endpoint, Playwright E2E tests running real browser interactions, GitHub Actions CI, Server-Sent Events with real connection lifecycle management, and Forklift-compatible YAML output.
+
+  \item \textbf{Simulated}: The migration progress numbers are generated mathematically by a timer loop on the server, not by a real disk conversion process. The provider connections do not make actual API calls to VMware or oVirt. The VM inventory is synthetic seed data, not a real hypervisor inventory.
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{How to Modify the Project}
+\label{sec:modify}
+
+\subsection{Project structure}
+
+\begin{lstlisting}[language={}]
+vm-migration-dashboard-demo/
+  src/
+    api/          client.ts — all HTTP calls to the backend
+    components/   Reusable React components (layout, RequireAuth, etc.)
+    context/      React Contexts: Auth, Migration, Language
+    hooks/        Custom hooks: useMigrations, useIsDark
+    i18n.ts       All translatable strings (English + Hebrew)
+    pages/        One file per route/page
+    types/        TypeScript type definitions
+  server/
+    index.ts      Express server and all API routes
+    db.ts         Database schema, seed data, and query functions
+  docs/           This document
+  e2e/            Playwright end-to-end tests
+  .db/            JSON database (auto-created, gitignored)
+\end{lstlisting}
+
+\subsection{Adding a new page}
+
+\begin{enumerate}
+  \item Create \texttt{src/pages/MyNewPage.tsx} with a named export function.
+  \item Add a route in \texttt{src/main.tsx}:
+\begin{lstlisting}[language={}]
+{ path: 'mynew', element: <MyNewPage /> }
+\end{lstlisting}
+  \item Add a navigation item in \texttt{src/components/layout/AppLayout.tsx}:
+\begin{lstlisting}[language={}]
+{ label: t('nav.mynew'), path: '/mynew' }
+\end{lstlisting}
+  \item Add the translation key in \texttt{src/i18n.ts}:
+\begin{lstlisting}[language={}]
+'nav.mynew': { en: 'My Page', he: 'הדף שלי' }
+\end{lstlisting}
+\end{enumerate}
+
+\subsection{Adding a new API endpoint}
+
+Open \texttt{server/index.ts} and add a route handler. The pattern is:
+
+\begin{lstlisting}[language={}]
+app.get('/api/my-resource', (_req, res) => {
+  res.json(getDb().data.myResource);
+});
+
+app.post('/api/my-resource', requireAuth, async (req, res) => {
+  const { field1, field2 } = req.body;
+  if (!field1) { res.status(400).json({ error: 'field1 required' }); return; }
+  const db = getDb();
+  const item = { id: `item-${Date.now()}`, field1, field2 };
+  db.data.myResource.push(item);
+  await db.write();
+  res.status(201).json(item);
+});
+\end{lstlisting}
+
+\subsection{Adding a new language}
+
+\begin{enumerate}
+  \item Open \texttt{src/i18n.ts} and add a new key to the type:
+\begin{lstlisting}[language={}]
+type Lang = 'en' | 'he' | 'ar';
+\end{lstlisting}
+  \item Add a translation value for every existing key.
+  \item Update \texttt{src/context/LanguageContext.tsx} to include the new language in the toggle.
+  \item If the language is RTL, ensure \texttt{document.dir = 'rtl'} is set when active.
+\end{enumerate}
+
+\subsection{Changing the visual theme}
+
+All colours come from PatternFly CSS custom properties. To change the primary accent colour, override it in \texttt{src/index.css}:
+
+\begin{lstlisting}[language={}]
+:root {
+  --pf-v6-global--primary-color--100: #your-color;
+}
+\end{lstlisting}
+
+No component code changes are needed — PatternFly reads from these variables.
+
+\subsection{Changing the seed data}
+
+Open \texttt{server/db.ts}. The seed arrays (\texttt{seedProviders}, \texttt{seedVMs}, \texttt{seedPlans}) are plain JavaScript objects. Edit them freely. Then delete \texttt{.db/db.json} and restart the server to apply the new seed data.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Testing}
+\label{sec:testing}
+
+\subsection{Unit tests}
+
+Run with:
+\begin{lstlisting}
+npm test
+\end{lstlisting}
+
+Unit tests live in \texttt{src/\_\_tests\_\_/} and use Vitest with Testing Library. They verify component rendering and behaviour without a server. A jsdom environment simulates the browser DOM. Tests cover: dashboard rendering, plan table filtering, migration status badges, navigation, provider card display, and i18n switching.
+
+\subsection{End-to-end tests}
+
+Run with:
+\begin{lstlisting}
+npm run e2e
+\end{lstlisting}
+
+End-to-end tests live in \texttt{e2e/} and use Playwright. They launch a real Chromium browser, navigate to the running application, and interact with it as a user would. Tests cover: login flow, navigation between pages, creating a migration plan, and verifying dashboard numbers update correctly.
+
+\begin{warnbox}
+E2E tests require the development server to be running (\texttt{npm run dev}) before you run \texttt{npm run e2e}. If the server is not running, Playwright will report a connection error.
+\end{warnbox}
+
+\subsection{CI pipeline}
+
+The GitHub Actions workflow at \texttt{.github/workflows/ci.yml} runs on every push and pull request:
+
+\begin{enumerate}
+  \item Install dependencies (\texttt{npm ci})
+  \item Type-check the full project (\texttt{tsc --noEmit})
+  \item Run the linter (\texttt{eslint .})
+  \item Run unit tests (\texttt{npm test})
+  \item Start the dev server and run E2E tests (\texttt{npm run e2e})
+\end{enumerate}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Deployment}
+\label{sec:deploy}
+
+\subsection{Building for production}
+
+\begin{lstlisting}
+npm run build
+\end{lstlisting}
+
+This compiles TypeScript and bundles the frontend into \texttt{dist/}. The output is static HTML, CSS, and JavaScript files that can be served from any web server or CDN.
+
+\subsection{Environment variables}
+
+\begin{center}
+\begin{tabular}{L{5.5cm} L{8cm}}
+  \toprule
+  \textbf{Variable} & \textbf{Description} \\
+  \midrule
+  \texttt{VITE\_GOOGLE\_CLIENT\_ID} & Google OAuth 2.0 client ID. Set in \texttt{.env.local} for development. Required only for Google Sign-In. \\
+  \texttt{PORT} & Backend server port. Defaults to 3001. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Deploying frontend to Vercel}
+
+\begin{enumerate}
+  \item Push the repository to GitHub.
+  \item Go to \url{https://vercel.com} and create a new project from your repository.
+  \item Set the build command to \texttt{npm run build} and the output directory to \texttt{dist}.
+  \item Add the environment variable \texttt{VITE\_GOOGLE\_CLIENT\_ID} in the Vercel dashboard if you want Google Sign-In to work.
+\end{enumerate}
+
+\subsection{Deploying backend to Railway}
+
+\begin{enumerate}
+  \item Go to \url{https://railway.app} and create a new service from your GitHub repository.
+  \item Set the start command to \texttt{npx tsx server/index.ts}.
+  \item Railway automatically exposes a public URL. Copy it.
+  \item In your frontend, update the API base URL to point to the Railway URL.
+\end{enumerate}
+
+\begin{notebox}
+Because the backend uses a local JSON file for the database, data is not persistent across Railway deployments. For production, replace lowdb with a hosted database such as PostgreSQL (via Railway's built-in PostgreSQL service) or MongoDB Atlas.
+\end{notebox}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Accessibility and Internationalisation}
+
+\subsection{Accessibility}
+
+PatternFly 6 components are built to WCAG 2.1 AA standards. This project adds:
+
+\begin{itemize}
+  \item Skip-to-main-content link at the top of every page for keyboard users
+  \item Correct \texttt{aria-label} attributes on all icon-only buttons
+  \item \texttt{isLiveRegion} on the toast notification container so screen readers announce new alerts
+  \item Semantic HTML headings in correct order on every page
+  \item All form fields associated with their labels via \texttt{htmlFor} / \texttt{id}
+\end{itemize}
+
+\subsection{Right-to-left (RTL) support}
+
+When Hebrew is active, the application sets \texttt{document.documentElement.dir = 'rtl'}. PatternFly mirrors its layout automatically under RTL. Known edge case: Victory Charts SVG layout does not respect the CSS \texttt{dir} attribute. This is fixed by wrapping all chart containers in \texttt{<div dir="ltr">}, preserving correct left-to-right chart rendering while the surrounding UI remains RTL.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Architecture Decisions and Trade-offs}
+\label{sec:arch}
+
+\subsection{Why lowdb instead of a real database?}
+
+lowdb stores data in a local JSON file. This means zero configuration — no Docker, no PostgreSQL instance, no connection strings. Anyone can clone the repo and run it immediately. For a demo project demonstrating UI skills, this is the right trade-off. The database interface (\texttt{server/db.ts}) is isolated enough that replacing lowdb with Prisma and PostgreSQL would require changes only in that one file.
+
+\subsection{Why Server-Sent Events instead of WebSockets?}
+
+SSE is a simpler protocol for one-direction server-to-browser streaming. It uses plain HTTP, automatically reconnects on disconnect, and is natively supported in every modern browser without a library. WebSockets require a separate protocol upgrade and state management. For migration progress updates (server $\to$ browser only), SSE is the appropriate tool.
+
+\subsection{Why in-memory sessions instead of JWT?}
+
+JSON Web Tokens (JWT) are stateless — the server doesn't need to store anything. However, they cannot be invalidated before expiry, which is a security problem when a user logs out. In-memory sessions can be deleted immediately on logout. The trade-off is that sessions are lost on server restart, which is acceptable for a demo.
+
+\subsection{Why PatternFly 6 specifically?}
+
+PatternFly is used across all Red Hat web UIs: OpenShift Console, RHEL web console, Ansible Automation Platform, and every Operator UI including Forklift. Knowing PatternFly is effectively a prerequisite for contributing to any Red Hat frontend. Version 6 introduced significant breaking changes from version 5, including a new token system, updated component APIs, and CSS custom property changes. Using v6 demonstrates current knowledge.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Relevance to Red Hat Position R-055028}
+\label{sec:job}
+
+Red Hat's R-055028 position (\textit{Software Engineer — OpenShift Migration \& Virtualization UI}) describes the team responsible for building and maintaining the web interface for OpenShift Virtualization and the Migration Toolkit for Virtualization.
+
+\subsection{Technology alignment}
+
+Every technology mentioned or implied in the job description is present in this project:
+
+\begin{longtable}{L{5.5cm} L{8.5cm}}
+  \toprule
+  \textbf{Job requirement} & \textbf{How this project demonstrates it} \\
+  \midrule
+  \endhead
+  React and TypeScript       & Entire frontend; strict TypeScript with zero \texttt{any} types \\
+  PatternFly design system   & Version 6 used throughout; components, charts, forms, tables, navigation \\
+  REST API consumption       & All data loaded from the Express backend via \texttt{fetch} \\
+  Kubernetes / OpenShift familiarity & YAML export matching actual Forklift CRD schema; KubeVirt terminology used correctly throughout \\
+  Migration and virtualisation domain & Full implementation of the MTV domain model: providers, plans, network maps, storage maps, migration phases \\
+  Accessibility (WCAG)       & PatternFly + aria attributes + skip link + live regions \\
+  Testing (unit + E2E)       & Vitest + Testing Library + Playwright \\
+  CI/CD pipelines            & GitHub Actions workflow with lint, type-check, test, E2E \\
+  Internationalisation       & English/Hebrew with RTL \\
+  \bottomrule
+\end{longtable}
+
+\subsection{Domain knowledge demonstrated}
+
+Understanding the MTV/Forklift domain — providers, plans, migration phases (precopy, cutover), network and storage mapping, KubeVirt VirtualMachine resources, the Forklift CRD API group (\texttt{forklift.konveyor.io/v1beta1}) — requires studying the actual product documentation and source code. The vocabulary, data model, and YAML structure in this project reflect that study.
+
+\subsection{What this project is and is not claiming}
+
+This project demonstrates the ability to build a production-quality frontend application in the exact technology stack the team uses, with genuine understanding of the domain. It does not claim to be a replacement for or compete with MTV. It is a learning project that shows readiness to contribute to the real codebase from day one.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Glossary}
+
+\begin{longtable}{L{3.5cm} L{10.5cm}}
+  \toprule
+  \textbf{Term} & \textbf{Definition} \\
+  \midrule
+  \endhead
+  \textbf{CRD} & Custom Resource Definition — a way to extend Kubernetes with new object types \\
+  \textbf{Cutover} & The final migration phase where the source VM is shut down and the target VM takes over \\
+  \textbf{Forklift} & The open-source upstream project for MTV \\
+  \textbf{i18n} & Internationalisation — the practice of designing software to support multiple languages \\
+  \textbf{KubeVirt} & Kubernetes extension that allows VMs to run inside a Kubernetes cluster \\
+  \textbf{MTV} & Migration Toolkit for Virtualization — Red Hat's product for migrating VMs to OpenShift \\
+  \textbf{Network map} & Configuration that maps a source VM network to a Kubernetes network \\
+  \textbf{oVirt} & The upstream open-source project for Red Hat Virtualization \\
+  \textbf{PatternFly} & Red Hat's open-source enterprise React design system \\
+  \textbf{Pre-copy} & A warm migration phase where disk data is copied while the VM is still running \\
+  \textbf{Provider} & A connection to a source hypervisor or destination OpenShift cluster \\
+  \textbf{RTL} & Right-to-Left — text direction used by Arabic, Hebrew, and other languages \\
+  \textbf{SSE} & Server-Sent Events — a web standard for server-to-browser streaming over HTTP \\
+  \textbf{Storage map} & Configuration that maps a source datastore to a Kubernetes storage class \\
+  \textbf{virt-v2v} & The tool that converts VM disk images to KubeVirt format \\
+  \textbf{VM} & Virtual Machine — a software-based computer running on physical hardware \\
+  \bottomrule
+\end{longtable}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{References}
+
+\begin{itemize}
+  \item Red Hat Migration Toolkit for Virtualization documentation: \\ \url{https://access.redhat.com/documentation/en-us/migration_toolkit_for_virtualization}
+  \item Forklift open-source project: \url{https://github.com/kubev2v/forklift}
+  \item Forklift UI repository: \url{https://github.com/kubev2v/forklift-ui}
+  \item PatternFly 6 documentation: \url{https://www.patternfly.org}
+  \item KubeVirt documentation: \url{https://kubevirt.io/user-guide/}
+  \item OpenShift Virtualization documentation: \\ \url{https://docs.openshift.com/container-platform/latest/virt/about_virt/about-virt.html}
+  \item Google OAuth 2.0 documentation: \url{https://developers.google.com/identity/protocols/oauth2}
+  \item Konveyor community (upstream of MTV): \url{https://www.konveyor.io}
+\end{itemize}
+
+\end{document}

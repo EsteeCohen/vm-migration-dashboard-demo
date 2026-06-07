@@ -40,9 +40,11 @@ import {
 } from '@patternfly/react-table';
 import { FilterIcon, PlusCircleIcon } from '@patternfly/react-icons';
 import { useMigrations } from '../hooks/useMigrations';
+import { useAuth } from '../context/AuthContext';
 import { ProviderStatusBadge } from '../components/StatusBadge';
+import { apiClient } from '../api/client';
 import { t } from '../i18n';
-import type { ProviderKind, ProviderStatus } from '../types/migration';
+import type { Provider, ProviderKind, ProviderStatus } from '../types/migration';
 
 const KIND_LABELS: Record<ProviderKind, string> = {
   vmware: 'VMware',
@@ -51,36 +53,107 @@ const KIND_LABELS: Record<ProviderKind, string> = {
   openshift: 'OpenShift',
 };
 
+const BLANK_FORM = { name: '', kind: 'vmware' as ProviderKind, url: '' };
+
 export function ProvidersPage() {
-  const { providers, loading, addToast } = useMigrations();
-  const [kindFilter, setKindFilter] = useState<ProviderKind[]>([]);
+  const { providers, loading, addToast, addProvider, updateProvider, deleteProvider } = useMigrations();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
+  const [kindFilter,   setKindFilter]   = useState<ProviderKind[]>([]);
   const [statusFilter, setStatusFilter] = useState<ProviderStatus[]>([]);
-  const [kindOpen, setKindOpen] = useState(false);
-  const [statusOpen, setStatusOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newProvider, setNewProvider] = useState({ name: '', kind: 'vmware' as ProviderKind, url: '' });
+  const [kindOpen,     setKindOpen]     = useState(false);
+  const [statusOpen,   setStatusOpen]   = useState(false);
+
+  // Add modal
+  const [addOpen, setAddOpen] = useState(false);
+  const [form, setForm]       = useState(BLANK_FORM);
+
+  // Edit modal
+  const [editTarget, setEditTarget] = useState<Provider | null>(null);
+  const [editForm,   setEditForm]   = useState(BLANK_FORM);
+
+  // Delete confirm
+  const [deleteTarget, setDeleteTarget] = useState<Provider | null>(null);
+
+  const [saving, setSaving] = useState(false);
 
   const filtered = providers.filter((p) => {
-    if (kindFilter.length > 0 && !kindFilter.includes(p.kind)) return false;
+    if (kindFilter.length   > 0 && !kindFilter.includes(p.kind))     return false;
     if (statusFilter.length > 0 && !statusFilter.includes(p.status)) return false;
     return true;
   });
 
-  const toggleKind = (kind: ProviderKind) =>
-    setKindFilter((prev) => (prev.includes(kind) ? prev.filter((k) => k !== kind) : [...prev, kind]));
+  const toggleKind   = (k: ProviderKind)   =>
+    setKindFilter((prev)   => prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]);
+  const toggleStatus = (s: ProviderStatus) =>
+    setStatusFilter((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
 
-  const toggleStatus = (status: ProviderStatus) =>
-    setStatusFilter((prev) => (prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]));
-
-  const handleAddProvider = () => {
-    setIsModalOpen(false);
-    addToast({ variant: 'success', title: 'Provider added', body: `${newProvider.name} has been added successfully.` });
-    setNewProvider({ name: '', kind: 'vmware', url: '' });
+  // ── Add ────────────────────────────────────────────────────
+  const handleAdd = async () => {
+    setSaving(true);
+    try {
+      const created = await apiClient.createProvider(form);
+      addProvider(created);
+      addToast({ variant: 'success', title: t('provider.added'), body: form.name });
+      setAddOpen(false);
+      setForm(BLANK_FORM);
+    } catch {
+      addToast({ variant: 'danger', title: t('provider.addFailed') });
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const rowActions = (providerName: string) => [
-    { title: 'Edit', onClick: () => addToast({ variant: 'info', title: 'Edit provider', body: `Editing ${providerName}` }) },
-    { title: 'Remove', onClick: () => addToast({ variant: 'warning', title: 'Remove provider', body: `Removing ${providerName}` }), isDangerous: true },
+  // ── Edit ───────────────────────────────────────────────────
+  const openEdit = (p: Provider) => {
+    setEditTarget(p);
+    setEditForm({ name: p.name, kind: p.kind, url: p.url });
+  };
+
+  const handleEdit = async () => {
+    if (!editTarget) return;
+    setSaving(true);
+    try {
+      const updated = await apiClient.updateProvider(editTarget.id, editForm);
+      updateProvider(updated);
+      addToast({ variant: 'success', title: t('provider.updated'), body: updated.name });
+      setEditTarget(null);
+    } catch {
+      addToast({ variant: 'danger', title: t('provider.updateFailed') });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ── Delete ─────────────────────────────────────────────────
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setSaving(true);
+    try {
+      await apiClient.deleteProvider(deleteTarget.id);
+      deleteProvider(deleteTarget.id);
+      addToast({ variant: 'success', title: t('provider.deleted'), body: deleteTarget.name });
+      setDeleteTarget(null);
+    } catch {
+      addToast({ variant: 'danger', title: t('provider.deleteFailed') });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const rowActions = (p: Provider) => [
+    {
+      title: t('action.edit'),
+      onClick: () => openEdit(p),
+    },
+    {
+      title: t('action.delete'),
+      onClick: () => setDeleteTarget(p),
+      isDangerous: true,
+      isDisabled: !isAdmin,
+      tooltip: !isAdmin ? 'Admin access required' : undefined,
+    },
   ];
 
   return (
@@ -91,12 +164,7 @@ export function ProvidersPage() {
             <Title headingLevel="h1" size="xl">Providers</Title>
           </FlexItem>
           <FlexItem>
-            <Button
-              variant="primary"
-              icon={<PlusCircleIcon />}
-              onClick={() => setIsModalOpen(true)}
-              aria-label={t('action.addProvider')}
-            >
+            <Button variant="primary" icon={<PlusCircleIcon />} onClick={() => setAddOpen(true)}>
               {t('action.addProvider')}
             </Button>
           </FlexItem>
@@ -106,31 +174,20 @@ export function ProvidersPage() {
       <PageSection hasBodyWrapper={false}>
         <Toolbar clearAllFilters={() => { setKindFilter([]); setStatusFilter([]); }}>
           <ToolbarContent>
-            <ToolbarItem>
-              <FilterIcon aria-hidden="true" />
-            </ToolbarItem>
+            <ToolbarItem><FilterIcon aria-hidden="true" /></ToolbarItem>
             <ToolbarFilter
               labels={kindFilter.map((k) => ({ key: k, node: KIND_LABELS[k] }))}
               deleteLabel={(_cat, label) => toggleKind(typeof label === 'string' ? label as ProviderKind : label.key as ProviderKind)}
               deleteLabelGroup={() => setKindFilter([])}
               categoryName="Type"
             >
-              <Select
-                isOpen={kindOpen}
-                onOpenChange={setKindOpen}
-                selected={kindFilter}
+              <Select isOpen={kindOpen} onOpenChange={setKindOpen} selected={kindFilter}
                 onSelect={(_e, val) => toggleKind(val as ProviderKind)}
-                toggle={(ref) => (
-                  <MenuToggle ref={ref} onClick={() => setKindOpen(!kindOpen)} isExpanded={kindOpen}>
-                    Type
-                  </MenuToggle>
-                )}
+                toggle={(ref) => <MenuToggle ref={ref} onClick={() => setKindOpen(!kindOpen)} isExpanded={kindOpen}>Type</MenuToggle>}
               >
                 <SelectList>
                   {(Object.keys(KIND_LABELS) as ProviderKind[]).map((k) => (
-                    <SelectOption key={k} value={k} hasCheckbox isSelected={kindFilter.includes(k)}>
-                      {KIND_LABELS[k]}
-                    </SelectOption>
+                    <SelectOption key={k} value={k} hasCheckbox isSelected={kindFilter.includes(k)}>{KIND_LABELS[k]}</SelectOption>
                   ))}
                 </SelectList>
               </Select>
@@ -141,16 +198,9 @@ export function ProvidersPage() {
               deleteLabelGroup={() => setStatusFilter([])}
               categoryName="Status"
             >
-              <Select
-                isOpen={statusOpen}
-                onOpenChange={setStatusOpen}
-                selected={statusFilter}
+              <Select isOpen={statusOpen} onOpenChange={setStatusOpen} selected={statusFilter}
                 onSelect={(_e, val) => toggleStatus(val as ProviderStatus)}
-                toggle={(ref) => (
-                  <MenuToggle ref={ref} onClick={() => setStatusOpen(!statusOpen)} isExpanded={statusOpen}>
-                    Status
-                  </MenuToggle>
-                )}
+                toggle={(ref) => <MenuToggle ref={ref} onClick={() => setStatusOpen(!statusOpen)} isExpanded={statusOpen}>Status</MenuToggle>}
               >
                 <SelectList>
                   {(['ready', 'error', 'critical', 'unknown'] as ProviderStatus[]).map((s) => (
@@ -176,9 +226,7 @@ export function ProvidersPage() {
             {providers.length === 0 && (
               <EmptyStateFooter>
                 <EmptyStateActions>
-                  <Button variant="primary" onClick={() => setIsModalOpen(true)}>
-                    {t('action.addProvider')}
-                  </Button>
+                  <Button variant="primary" onClick={() => setAddOpen(true)}>{t('action.addProvider')}</Button>
                 </EmptyStateActions>
               </EmptyStateFooter>
             )}
@@ -209,11 +257,9 @@ export function ProvidersPage() {
                     </Content>
                   </Td>
                   <Td dataLabel="VMs">{prov.vmCount}</Td>
-                  <Td dataLabel="Status">
-                    <ProviderStatusBadge status={prov.status} />
-                  </Td>
+                  <Td dataLabel="Status"><ProviderStatusBadge status={prov.status} /></Td>
                   <Td isActionCell>
-                    <ActionsColumn items={rowActions(prov.name)} />
+                    <ActionsColumn items={rowActions(prov)} />
                   </Td>
                 </Tr>
               ))}
@@ -222,60 +268,83 @@ export function ProvidersPage() {
         )}
       </PageSection>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        variant="medium"
-        aria-labelledby="add-provider-modal-title"
-      >
-        <ModalHeader title="Add Provider" labelId="add-provider-modal-title" />
+      {/* ── Add modal ──────────────────────────────────────────── */}
+      <Modal isOpen={addOpen} onClose={() => setAddOpen(false)} variant="medium" aria-labelledby="add-prov-title">
+        <ModalHeader title={t('action.addProvider')} labelId="add-prov-title" />
         <ModalBody>
           <Form>
-            <FormGroup label="Name" isRequired fieldId="prov-name">
-              <TextInput
-                id="prov-name"
-                isRequired
-                value={newProvider.name}
-                onChange={(_e, val) => setNewProvider((p) => ({ ...p, name: val }))}
-                aria-label="Provider name"
-              />
+            <FormGroup label="Name" isRequired fieldId="ap-name">
+              <TextInput id="ap-name" isRequired value={form.name}
+                onChange={(_e, v) => setForm((f) => ({ ...f, name: v }))} aria-label="Provider name" />
             </FormGroup>
-            <FormGroup label="Type" isRequired fieldId="prov-kind">
-              <FormSelect
-                id="prov-kind"
-                value={newProvider.kind}
-                onChange={(_e, val) => setNewProvider((p) => ({ ...p, kind: val as ProviderKind }))}
-                aria-label="Provider type"
-              >
+            <FormGroup label="Type" isRequired fieldId="ap-kind">
+              <FormSelect id="ap-kind" value={form.kind}
+                onChange={(_e, v) => setForm((f) => ({ ...f, kind: v as ProviderKind }))} aria-label="Provider type">
                 {(Object.entries(KIND_LABELS) as [ProviderKind, string][]).map(([k, label]) => (
                   <FormSelectOption key={k} value={k} label={label} />
                 ))}
               </FormSelect>
             </FormGroup>
-            <FormGroup label="URL" isRequired fieldId="prov-url">
-              <TextInput
-                id="prov-url"
-                isRequired
-                type="url"
-                value={newProvider.url}
-                onChange={(_e, val) => setNewProvider((p) => ({ ...p, url: val }))}
-                aria-label="Provider URL"
-                placeholder="https://vcenter.example.com"
-              />
+            <FormGroup label="URL" isRequired fieldId="ap-url">
+              <TextInput id="ap-url" isRequired type="url" value={form.url}
+                onChange={(_e, v) => setForm((f) => ({ ...f, url: v }))}
+                aria-label="Provider URL" placeholder="https://vcenter.example.com" />
             </FormGroup>
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button
-            variant="primary"
-            onClick={handleAddProvider}
-            isDisabled={!newProvider.name || !newProvider.url}
-          >
-            Add Provider
+          <Button variant="primary" onClick={handleAdd} isLoading={saving} isDisabled={saving || !form.name || !form.url}>
+            {t('action.addProvider')}
           </Button>
-          <Button variant="link" onClick={() => setIsModalOpen(false)}>
-            Cancel
+          <Button variant="link" onClick={() => setAddOpen(false)}>Cancel</Button>
+        </ModalFooter>
+      </Modal>
+
+      {/* ── Edit modal ─────────────────────────────────────────── */}
+      <Modal isOpen={!!editTarget} onClose={() => setEditTarget(null)} variant="medium" aria-labelledby="edit-prov-title">
+        <ModalHeader title={t('action.edit') + ': ' + editTarget?.name} labelId="edit-prov-title" />
+        <ModalBody>
+          <Form>
+            <FormGroup label="Name" isRequired fieldId="ep-name">
+              <TextInput id="ep-name" isRequired value={editForm.name}
+                onChange={(_e, v) => setEditForm((f) => ({ ...f, name: v }))} aria-label="Provider name" />
+            </FormGroup>
+            <FormGroup label="Type" isRequired fieldId="ep-kind">
+              <FormSelect id="ep-kind" value={editForm.kind}
+                onChange={(_e, v) => setEditForm((f) => ({ ...f, kind: v as ProviderKind }))} aria-label="Provider type">
+                {(Object.entries(KIND_LABELS) as [ProviderKind, string][]).map(([k, label]) => (
+                  <FormSelectOption key={k} value={k} label={label} />
+                ))}
+              </FormSelect>
+            </FormGroup>
+            <FormGroup label="URL" isRequired fieldId="ep-url">
+              <TextInput id="ep-url" isRequired type="url" value={editForm.url}
+                onChange={(_e, v) => setEditForm((f) => ({ ...f, url: v }))}
+                aria-label="Provider URL" />
+            </FormGroup>
+          </Form>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="primary" onClick={handleEdit} isLoading={saving} isDisabled={saving || !editForm.name || !editForm.url}>
+            {t('action.save')}
           </Button>
+          <Button variant="link" onClick={() => setEditTarget(null)}>Cancel</Button>
+        </ModalFooter>
+      </Modal>
+
+      {/* ── Delete confirm ─────────────────────────────────────── */}
+      <Modal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} variant="small" aria-labelledby="del-prov-title">
+        <ModalHeader title={t('action.confirmDelete')} labelId="del-prov-title" />
+        <ModalBody>
+          <p>
+            {t('provider.deleteConfirm')} <strong>{deleteTarget?.name}</strong>?
+          </p>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="danger" onClick={handleDelete} isLoading={saving} isDisabled={saving}>
+            {t('action.delete')}
+          </Button>
+          <Button variant="link" onClick={() => setDeleteTarget(null)}>Cancel</Button>
         </ModalFooter>
       </Modal>
     </>

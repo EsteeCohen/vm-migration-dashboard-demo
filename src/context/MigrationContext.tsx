@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import type { Provider, VM, MigrationPlan, MigrationStep } from '../types/migration';
 import { apiClient } from '../api/client';
+import { mockProviders, mockVMs, mockPlans } from '../mock/data';
 
 interface State {
   providers: Provider[];
@@ -19,6 +20,9 @@ export interface Toast {
 
 type Action =
   | { type: 'LOAD_SUCCESS'; providers: Provider[]; vms: VM[]; plans: MigrationPlan[] }
+  | { type: 'ADD_PROVIDER'; provider: Provider }
+  | { type: 'UPDATE_PROVIDER'; provider: Provider }
+  | { type: 'DELETE_PROVIDER'; id: string }
   | { type: 'ADD_PLAN'; plan: MigrationPlan }
   | { type: 'UPDATE_PLAN'; plan: MigrationPlan }
   | { type: 'UPDATE_STEPS'; planId: string; steps: MigrationStep[]; progress: number; status: MigrationPlan['status'] }
@@ -29,6 +33,12 @@ function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'LOAD_SUCCESS':
       return { ...state, loading: false, providers: action.providers, vms: action.vms, plans: action.plans };
+    case 'ADD_PROVIDER':
+      return { ...state, providers: [...state.providers, action.provider] };
+    case 'UPDATE_PROVIDER':
+      return { ...state, providers: state.providers.map(p => p.id === action.provider.id ? action.provider : p) };
+    case 'DELETE_PROVIDER':
+      return { ...state, providers: state.providers.filter(p => p.id !== action.id) };
     case 'ADD_PLAN':
       return { ...state, plans: [action.plan, ...state.plans] };
     case 'UPDATE_PLAN':
@@ -57,6 +67,9 @@ interface ContextValue {
   plans: MigrationPlan[];
   loading: boolean;
   toasts: Toast[];
+  addProvider: (provider: Provider) => void;
+  updateProvider: (provider: Provider) => void;
+  deleteProvider: (id: string) => void;
   addPlan: (plan: MigrationPlan) => void;
   updatePlan: (plan: MigrationPlan) => void;
   updateSteps: (planId: string, steps: MigrationStep[], progress: number, status: MigrationPlan['status']) => void;
@@ -84,21 +97,23 @@ export function MigrationProvider({ children }: { children: React.ReactNode }) {
           apiClient.getPlans(),
         ]);
         dispatch({ type: 'LOAD_SUCCESS', providers, vms, plans });
-      } catch (error) {
-        console.error('Failed to load data:', error);
-        dispatch({ type: 'ADD_TOAST', toast: { id: `toast-${Date.now()}`, variant: 'danger', title: 'Failed to load data' } });
+      } catch {
+        dispatch({ type: 'LOAD_SUCCESS', providers: mockProviders, vms: mockVMs, plans: mockPlans });
       }
     })();
   }, []);
 
   const value: ContextValue = {
     ...state,
-    addPlan: (plan) => dispatch({ type: 'ADD_PLAN', plan }),
-    updatePlan: (plan) => dispatch({ type: 'UPDATE_PLAN', plan }),
-    updateSteps: (planId, steps, progress, status) =>
+    addProvider:    (provider) => dispatch({ type: 'ADD_PROVIDER', provider }),
+    updateProvider: (provider) => dispatch({ type: 'UPDATE_PROVIDER', provider }),
+    deleteProvider: (id)       => dispatch({ type: 'DELETE_PROVIDER', id }),
+    addPlan:        (plan)     => dispatch({ type: 'ADD_PLAN', plan }),
+    updatePlan:     (plan)     => dispatch({ type: 'UPDATE_PLAN', plan }),
+    updateSteps:    (planId, steps, progress, status) =>
       dispatch({ type: 'UPDATE_STEPS', planId, steps, progress, status }),
     addToast: (toast) =>
-      dispatch({ type: 'ADD_TOAST', toast: { ...toast, id: `toast-${Date.now()}` } }),
+      dispatch({ type: 'ADD_TOAST', toast: { ...toast, id: `toast-${Date.now()}-${Math.random()}` } }),
     removeToast: (id) => dispatch({ type: 'REMOVE_TOAST', id }),
   };
 

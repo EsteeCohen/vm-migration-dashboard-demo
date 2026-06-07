@@ -1,3 +1,12 @@
+export type UserRole = 'demo' | 'admin';
+
+export interface User {
+  id: string;
+  username: string;
+  role: UserRole;
+  displayName: string;
+}
+
 export type ProviderKind = 'vmware' | 'ovirt' | 'openstack' | 'openshift';
 export type ProviderStatus = 'ready' | 'error' | 'critical' | 'unknown';
 
