@@ -4,11 +4,6 @@ A full-stack demo dashboard inspired by Red Hat's **Migration Toolkit for Virtua
 
 ![Demo](docs/demo.gif)
 
----
-
-## Live Demo
-
-> Deploy to Vercel (frontend) + Railway (backend) — instructions in the [Deployment](#deployment) section below.
 
 ---
 
@@ -145,28 +140,9 @@ See the **About** page in the app for the full breakdown.
 
 ---
 
-## Deployment
-
-### Frontend → Vercel
-
-1. Push to GitHub
-2. Go to [vercel.com](https://vercel.com), import your repo
-3. Vercel auto-detects Vite — no config needed
-4. A `vercel.json` is already included for SPA routing
-
-### Backend → Railway
-
-1. Go to [railway.app](https://railway.app), create a new project
-2. Connect your GitHub repo
-3. Set start command: `tsx server/index.ts`
-4. Copy the Railway URL, then set `VITE_API_URL=https://your-app.railway.app` in Vercel environment variables
-5. Update `src/api/client.ts`: change `const API = '/api'` to `const API = \`\${import.meta.env.VITE_API_URL ?? ''}/api\``
-
----
-
 ## Connection to Red Hat
 
-This project is built on real Red Hat open-source projects:
+This project is built on Red Hat open-source projects:
 
 | Project | What it is |
 |---|---|
@@ -179,7 +155,7 @@ The YAML this app exports matches the real `forklift.konveyor.io/v1beta1` API �
 
 ---
 
-## Why This Was Built
+## Why This Was Built?
 
 This project was built as a learning exercise to understand:
 
@@ -192,10 +168,4 @@ This project was built as a learning exercise to understand:
 - Accessibility standards (WCAG, ARIA) in a complex UI
 - CI/CD with GitHub Actions
 
----
 
-## CI Status
-
-[![CI](https://github.com/YOUR_USERNAME/vm-migration-dashboard-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/vm-migration-dashboard-demo/actions/workflows/ci.yml)
-
-Pipeline: **Lint → Type Check → Unit Tests → Build → Upload artifact**
