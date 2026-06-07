@@ -2,6 +2,8 @@
 
 A full-stack demo dashboard inspired by Red Hat's **Migration Toolkit for Virtualization (MTV)** — built to learn modern cloud-native development with React, PatternFly, and a real backend.
 
+![Demo](docs/demo.gif)
+
 ---
 
 ## Live Demo
